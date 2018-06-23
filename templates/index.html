@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}
+    MySite|Home
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/index.css'%}">
+{% endblock %}
+
+{% block nav_home_active %}
+    active
+{% endblock %}
+
+{% block content %}
+    <h3 class="index_cont">Welcome to my site!</h3>
+{% endblock %}
