@@ -9,7 +9,7 @@
             <div class="col-md-8">
                 <div class="card mb-4">
                   <div class="card-header">
-                    Blog List ({{ blog_page.paginator.count }})
+                    Blog List <span class="badge badge-secondary badge-pill">{{ blog_page.paginator.count }}</span>
                   </div>
                   <ul class="list-group list-group-flush">
                     {% for blog in blogs %}
@@ -21,7 +21,7 @@
                                     <a href="{% url 'blogs_with_type' blog.blog_type.id %}">{{ blog.blog_type }}</a>
                                     <i class="far fa-clock"></i>{{ blog.create_time|date:"Y-m-d" }}
                                 </div>
-                                <p>{{ blog.content|truncatewords:45 }}</p>
+                                <p>{{ blog.content|striptags|truncatewords:45 }}</p>
                             </div>
                         </li>
                     {% empty %}
@@ -72,7 +72,7 @@
                     {% for blog_type in blog_types %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <a href="{% url 'blogs_with_type' blog_type.pk %}">{{ blog_type.type_name }}</a>
-                            <span class="badge badge-secondary badge-pill">{{ blogs|length }}</span>
+                            <span class="badge badge-secondary badge-pill">{{ blog_type.blog_count }}</span>
                         </li>
                     {% empty %}
                         <li class="list-group-item">No Blog Tags Yet</li>

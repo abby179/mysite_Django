@@ -15,7 +15,7 @@
                     <i class="fas fa-tag"></i>
                     <a href="{% url 'blogs_with_type' blog.blog_type.id %}">{{ blog.blog_type }}</a>
                 </div>
-                <p class="md-4">{{ blog.content }}</p>
+                <p class="md-4">{{ blog.content|safe }}</p>
                 <div class="blog-more">
                     {% if previous_blog %}
                         <h6>Previous Blog: <a href="{% url 'blog_detail' previous_blog.pk %}">{{ previous_blog.title }}</a></h6>
