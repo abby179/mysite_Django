@@ -15,4 +15,31 @@
 
 {% block content %}
     <h3 class="index_cont">Welcome to my site!</h3>
+    <div id="container"></div>
+    <script>
+        $(function () {
+            var myChart = Highcharts.chart('container', {
+                chart: {type: 'line'},
+                title: {text: null},
+                xAxis: {
+                    categories: {{ dates|safe }},
+                    tickmarkPlacement: 'on',
+                },
+                yAxis: {
+                    title: {text: null},
+                    labels: {enabled: false},
+                    gridLineDashStyle: 'Dash',
+                },
+                series: [{
+                    name: 'Views',
+                    data: {{ read_nums }}
+                }],
+                plotOptions: {
+                  line: {dataLabels:{enabled: true}}
+                },
+                legend: {enabled: false},
+                credits: {enabled: false},
+            });
+        });
+    </script>
 {% endblock %}

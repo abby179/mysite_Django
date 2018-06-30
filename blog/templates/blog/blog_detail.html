@@ -14,6 +14,7 @@
                     <i class="far fa-clock"></i>{{ blog.create_time|date:"Y-m-d" }}
                     <i class="fas fa-tag"></i>
                     <a href="{% url 'blogs_with_type' blog.blog_type.id %}">{{ blog.blog_type }}</a>
+                    <i class="fas fa-eye"></i>{{ blog.get_read_num }}
                 </div>
                 <p class="md-4">{{ blog.content|safe }}</p>
                 <div class="blog-more">

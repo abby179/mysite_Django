@@ -1,9 +1,10 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from ckeditor.fields import RichTextField
+from read_count.models import ReadNum, ReadNumExpandMethod
 
 
-# Create your models here.
 class BlogType(models.Model):
     type_name = models.CharField(max_length=20)
 
@@ -14,7 +15,7 @@ class BlogType(models.Model):
         return self.blog_set.count()
 
 
-class Blog(models.Model):
+class Blog(models.Model, ReadNumExpandMethod):
     title = models.CharField(max_length=50)
     content = RichTextField()
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING)

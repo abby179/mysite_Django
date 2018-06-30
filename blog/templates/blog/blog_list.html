@@ -9,7 +9,11 @@
             <div class="col-md-8">
                 <div class="card mb-4">
                   <div class="card-header">
-                    Blog List <span class="badge badge-secondary badge-pill">{{ blog_page.paginator.count }}</span>
+                    Blog List
+                      {% if blog_type %}
+                          <i class="fas fa-tag"></i>{{ blog_type }}
+                      {% endif %}
+                      <span class="badge badge-secondary badge-pill">{{ blog_page.paginator.count }}</span>
                   </div>
                   <ul class="list-group list-group-flush">
                     {% for blog in blogs %}
@@ -20,6 +24,7 @@
                                     <i class="fas fa-tag"></i>
                                     <a href="{% url 'blogs_with_type' blog.blog_type.id %}">{{ blog.blog_type }}</a>
                                     <i class="far fa-clock"></i>{{ blog.create_time|date:"Y-m-d" }}
+                                    <i class="fas fa-eye"></i>{{ blog.get_read_num }}
                                 </div>
                                 <p>{{ blog.content|striptags|truncatewords:45 }}</p>
                             </div>

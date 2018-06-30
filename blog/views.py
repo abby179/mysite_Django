@@ -1,7 +1,8 @@
-from django.shortcuts import render, get_object_or_404
-from django.core.paginator import Paginator
 from django.conf import settings
+from django.core.paginator import Paginator
+from django.shortcuts import render, get_object_or_404
 from .models import Blog, BlogType
+from read_count.utils import read_count_once
 
 
 # Create your views here.
@@ -49,7 +50,11 @@ def blogs_with_type(request, blog_type_pk):
 def blog_detail(request, blog_pk):
     context = {}
     blog = get_object_or_404(Blog, id=blog_pk)
+    read_cookie_key = read_count_once(request, blog)
+
     context['blog'] = blog
     context['previous_blog'] = Blog.objects.filter(create_time__gt=blog.create_time).last()
     context['next_blog'] = Blog.objects.filter(create_time__lt=blog.create_time).first()
-    return render(request, 'blog/blog_detail.html', context)
+    response = render(request, 'blog/blog_detail.html', context)
+    response.set_cookie(read_cookie_key, 'true', max_age=120)
+    return response
