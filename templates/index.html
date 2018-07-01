@@ -14,8 +14,61 @@
 {% endblock %}
 
 {% block content %}
-    <h3 class="index_cont">Welcome to my site!</h3>
-    <div id="container"></div>
+    <div class="container">
+        <div class="row">
+        <div class="col-md-8">
+            <h3 class="index_cont">Welcome to my site!</h3>
+            <div id="container"></div>
+        </div>
+        <div class="col-md-4 d-none d-md-block">
+            <div class="card hot-blog">
+                <div class="card-header">
+                    Today's Top Blogs
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for hot_blog in hot_today %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{% url 'blog_detail' hot_blog.object_id %}">{{ hot_blog.content_object }}({{ hot_blog.read_num }})</a>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">No hot blogs yet</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card hot-blog">
+                <div class="card-header">
+                    Yesterday's Top Blogs
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for hot_blog in hot_yesterday %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{% url 'blog_detail' hot_blog.object_id %}">{{ hot_blog.content_object }}({{ hot_blog.read_num }})</a>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">No hot blogs yesterday</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card hot-blog">
+                <div class="card-header">
+                    Top Blogs in the Past 7 Days
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for hot_blog in hot_7_days %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{% url 'blog_detail' hot_blog.id %}">{{ hot_blog.title }}({{ hot_blog.read_num_sum }})</a>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">No hot blogs in the past 7 days</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+
+    </div>
+    </div>
+
     <script>
         $(function () {
             var myChart = Highcharts.chart('container', {
