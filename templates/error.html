@@ -1,0 +1,13 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}
+    MySite|Error
+{% endblock %}
+
+{% block content %}
+    <div class="content ml-4">
+        <h4>{{ message }}</h4>
+        <a href="{{ redirect_to }}">Return</a>
+    </div>
+{% endblock %}
