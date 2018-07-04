@@ -1,7 +1,12 @@
 {% extends 'layout.html' %}
+{% load static %}
 
 {% block title %}
     {{ blog.title }}
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'blog_detail.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -34,12 +39,10 @@
                     {% if user.is_authenticated %}
                         <form action="{% url 'update_comment' %}" method="post">
                             {% csrf_token %}
-                            <div class="form-group">
-                                <label for="comment_text">{{ user }}, please leave your comment:</label>
-                                <textarea name="text" id="comment_text" class="form-control" rows="5"></textarea>
-                                <input type="hidden" name="object_id" value="{{ blog.pk }}">
-                                <input type="hidden" name="content_type" value="blog">
-                            </div>
+                            <label for="comment_text">{{ user }}, please leave your comment:</label>
+                            {% for field in comment_form %}
+                                {{ field }}
+                            {% endfor %}
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
                     {% else %}
@@ -69,4 +72,9 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block extend %}
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
 {% endblock %}
