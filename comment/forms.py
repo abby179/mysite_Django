@@ -8,7 +8,8 @@ from ckeditor.widgets import CKEditorWidget
 class CommentForm(forms.Form):
     content_type = forms.CharField(widget=forms.HiddenInput)
     object_id = forms.IntegerField(widget=forms.HiddenInput)
-    text = forms.CharField(widget=CKEditorWidget(config_name='comment_ckeditor'))
+    text = forms.CharField(widget=CKEditorWidget(config_name='comment_ckeditor'),
+                           error_messages={'required': 'Comment content cannot be none.'})
 
     def clean(self):
         try:

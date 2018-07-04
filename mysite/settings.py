@@ -164,5 +164,6 @@ CKEDITOR_CONFIGS = {
         'tabSpaces': 4,
         'removePlugins': 'elementspath',
         'resize_enabled': False,
-    }
+    },
+    'default': {}
 }
