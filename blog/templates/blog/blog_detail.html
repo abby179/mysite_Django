@@ -40,11 +40,16 @@
                         <form id="comment_form" action="{% url 'update_comment' %}" method="post">
                             {% csrf_token %}
                             <label for="comment_text">{{ user }}, please leave your comment:</label>
+                            <div id="reply_content_container" style="display: none">
+                                <span>Reply: </span>
+                                <span id="reply_content"></span>
+                            </div>
                             {% for field in comment_form %}
                                 {{ field }}
                             {% endfor %}
                             <button type="submit" class="btn btn-primary">Submit</button>
                             <span id="comment_error" class="text-danger"></span>
+                            <span id="comment_success" class="text-success"></span>
                         </form>
                     {% else %}
                         Please login to comment.
@@ -57,10 +62,26 @@
                     <h4 class="pb-2">Comment List</h4>
                     <ul id="comment_list" class="list-group list-group-flush mb-4 pb-4">
                     {% for comment in comments %}
-                        <li class="list-group-item">
-                            {{ comment.user.username }}
-                            ({{ comment.comment_time|date:"Y-m-d H:i" }}):
-                            {{ comment.text|safe }}
+                        <li id="root_{{ comment.pk }}" class="list-group-item">
+                            <span>{{ comment.user.username }}</span>
+                            <span>({{ comment.comment_time|date:"Y-m-d H:i" }}):</span>
+                            <div id="comment_{{ comment.pk }}">
+                                {{ comment.text|safe }}
+                            </div>
+                            <a href="javascript:reply({{ comment.pk }});" class="small">Reply</a>
+
+                            {% for reply in comment.root_comment.all %}
+                            <div class="ml-4">
+                                <span>{{ reply.user.username }}</span>
+                                <span>({{ reply.comment_time|date:"Y-m-d H:i" }})</span>
+                                <span>reply</span>
+                                <span>{{ reply.reply_to.username }}:</span>
+                                <div id="comment_{{ reply.pk }}">
+                                    {{ reply.text|safe }}
+                                </div>
+                                <a href="javascript:reply({{ reply.pk }});" class="small">Reply</a>
+                            </div>
+                            {% endfor %}
                         </li>
                     {% empty %}
                         <li id="no_comment" class="list-group-item">
@@ -100,12 +121,30 @@
                 success: [function (data) {
                     console.log(data);
                     if(data['status']==="SUCCESS"){
-                        var comment_html = '<li class="list-group-item">' + data['username'] +
-                                           '(' + data['comment_time'] + '): ' +
-                                           data['text'] + '</li>';
-                        $("#comment_list").prepend(comment_html);
+                        if($("#reply_comment_id").val()==='0'){
+                            //add comment
+                            var comment_html = '<li id="root_' + data['pk'] + '" class="list-group-item">' +
+                            '<span>' + data['username'] + '</span>' +
+                            '<span>(' + data['comment_time'] + '):</span>' +
+                            '<div id="comment_' + data['pk'] + '">' + data['text'] + '</div>' +
+                            '<a href="javascript:reply(' + data['pk'] + ');" class="small">Reply</a></li>';
+                            $("#comment_list").prepend(comment_html);
+                        }else{
+                            //add reply
+                            var reply_html = '<div class="ml-4">'+
+                                '<span>' + data['username'] + '</span>'+
+                                '<span>(' + data['comment_time'] + ')</span>'+
+                                '<span>reply</span>'+
+                                '<span>' + data['reply_to'] + ':</span>'+
+                                '<div id="comment_' + data['pk'] + '">'+ data['text'] + '</div>'+
+                                '<a href="javascript:reply(' + data['pk'] + ');" class="small">Reply</a></div>';
+                            $("#root_" + data['root_pk']).append(reply_html);
+                        }
                         CKEDITOR.instances['id_text'].setData('');
-                        $("#no_comment").remove()
+                        $("#reply_content_container").hide();
+                        $("#reply_comment_id").val('0');
+                        $("#no_comment").remove();
+                        $("#comment_success").text('Comment submitted');
                     }else{
                         $("#comment_error").text(data['message']);
                     }
@@ -116,6 +155,17 @@
             });
             return false;
         });
+
+        function reply(reply_comment_id) {
+            $("#reply_comment_id").val(reply_comment_id);
+            var html = $("#comment_" + reply_comment_id).html();
+            $("#reply_content").html(html);
+            $("#reply_content_container").show();
+
+            $("html").animate({scrollTop: $("#comment_form").offset().top - 60}, 300, function () {
+                CKEDITOR.instances['id_text'].focus();
+            })
+        }
     </script>
 
 {% endblock %}
