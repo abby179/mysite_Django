@@ -1,4 +1,5 @@
 {% extends 'layout.html' %}
+{% load comment_tags %}
 
 {% block title %}Mysite|Blog{% endblock %}
 {% block nav_blog_active %}active{% endblock %}
@@ -22,9 +23,10 @@
                                 <h4><a href="{% url 'blog_detail' blog.id %}">{{ blog.title }}</a></h4>
                                 <div>
                                     <i class="fas fa-tag"></i>
-                                    <a href="{% url 'blogs_with_type' blog.blog_type.id %}">{{ blog.blog_type }}</a>
-                                    <i class="far fa-clock"></i>{{ blog.create_time|date:"Y-m-d" }}
-                                    <i class="fas fa-eye"></i>{{ blog.get_read_num }}
+                                    <a href="{% url 'blogs_with_type' blog.blog_type.id %}">{{ blog.blog_type }}</a>&nbsp;
+                                    <i class="far fa-clock"></i>{{ blog.create_time|date:"Y-m-d" }}&nbsp;
+                                    <i class="fas fa-eye"></i>{{ blog.get_read_num }}&nbsp;
+                                    <i class="fas fa-comments"></i>{% get_comment_count blog %}&nbsp;
                                 </div>
                                 <p>{{ blog.content|striptags|truncatewords:45 }}</p>
                             </div>
