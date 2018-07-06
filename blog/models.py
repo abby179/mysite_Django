@@ -19,10 +19,10 @@ class BlogType(models.Model):
 class Blog(models.Model, ReadNumExpandMethod):
     title = models.CharField(max_length=50)
     content = RichTextField()
-    author = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     create_time = models.DateTimeField(auto_now_add=True)
     last_update_time = models.DateTimeField(auto_now=True)
-    blog_type = models.ForeignKey(BlogType, on_delete=models.DO_NOTHING)
+    blog_type = models.ForeignKey(BlogType, on_delete=models.CASCADE)
     read_details = GenericRelation(ReadDetail)
 
     def __str__(self):

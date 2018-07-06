@@ -108,6 +108,31 @@
 {% block script %}
 
     <script type="text/javascript">
+        function reply(reply_comment_id) {
+            $("#reply_comment_id").val(reply_comment_id);
+            var html = $("#comment_" + reply_comment_id).html();
+            $("#reply_content").html(html);
+            $("#reply_content_container").show();
+
+            $("html").animate({scrollTop: $("#comment_form").offset().top - 60}, 300, function () {
+                CKEDITOR.instances['id_text'].focus();
+            })
+        }
+        
+        function numFormat(num) {
+            return ('00' + num).substr(-2);
+        }
+        
+        function timeFormat(timestamp){
+            var datetime = new Date(timestamp * 1000);
+            var year = datetime.getFullYear();
+            var month = numFormat(datetime.getMonth() + 1);
+            var date = numFormat(datetime.getDate());
+            var hour = numFormat(datetime.getHours());
+            var minute = numFormat(datetime.getMinutes());
+            return year + '-' + month + '-' + date + ' ' + hour + ':' + minute;
+        }
+
         $("#comment_form").submit(function () {
             $("#comment_error").text('');
             if(CKEDITOR.instances["id_text"].document.getBody().getText().trim()===''){
@@ -129,7 +154,7 @@
                             //add comment
                             var comment_html = '<li id="root_' + data['pk'] + '" class="list-group-item">' +
                             '<span>' + data['username'] + '</span>' +
-                            '<span>(' + data['comment_time'] + '):</span>' +
+                            '<span>(' + timeFormat(data['comment_time']) + '):</span>' +
                             '<div id="comment_' + data['pk'] + '">' + data['text'] + '</div>' +
                             '<a href="javascript:reply(' + data['pk'] + ');" class="small">Reply</a></li>';
                             $("#comment_list").prepend(comment_html);
@@ -137,7 +162,7 @@
                             //add reply
                             var reply_html = '<div class="ml-4">'+
                                 '<span>' + data['username'] + '</span>'+
-                                '<span>(' + data['comment_time'] + ')</span>'+
+                                '<span>(' + timeFormat(data['comment_time']) + ')</span>'+
                                 '<span>reply</span>'+
                                 '<span>' + data['reply_to'] + ':</span>'+
                                 '<div id="comment_' + data['pk'] + '">'+ data['text'] + '</div>'+
@@ -159,17 +184,6 @@
             });
             return false;
         });
-
-        function reply(reply_comment_id) {
-            $("#reply_comment_id").val(reply_comment_id);
-            var html = $("#comment_" + reply_comment_id).html();
-            $("#reply_content").html(html);
-            $("#reply_content_container").show();
-
-            $("html").animate({scrollTop: $("#comment_form").offset().top - 60}, 300, function () {
-                CKEDITOR.instances['id_text'].focus();
-            })
-        }
     </script>
 
 {% endblock %}
