@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
 {% load static %}
 {% load comment_tags %}
+{% load likes_tags %}
 
 {% block title %}
     {{ blog.title }}
@@ -16,14 +17,19 @@
             <div class="col-sm-10 offset-sm-1">
                 <h3>{{ blog.title }}</h3>
                 <div>
-                    <i class="fas fa-user"></i>{{ blog.author }}&nbsp;
-                    <i class="far fa-clock"></i>{{ blog.create_time|date:"Y-m-d" }}&nbsp;
-                    <i class="fas fa-tag"></i>
-                    <a href="{% url 'blogs_with_type' blog.blog_type.id %}">{{ blog.blog_type }}</a>&nbsp;
-                    <i class="fas fa-eye"></i>{{ blog.get_read_num }}&nbsp;
-                    <i class="fas fa-comments"></i>{% get_comment_count blog %}&nbsp;
+                    <i class="fas fa-user">{{ blog.author }}&nbsp;</i>
+                    <i class="fas fa-clock">{{ blog.create_time|date:"Y-m-d" }}&nbsp;</i>
+                    <i class="fas fa-tag">
+                    <a href="{% url 'blogs_with_type' blog.blog_type.id %}">{{ blog.blog_type }}&nbsp;</a></i>
+                    <i class="fas fa-eye">{{ blog.get_read_num }}&nbsp;</i>
+                    <i class="fas fa-comments">{% get_comment_count blog %}&nbsp;</i>
                 </div>
                 <p class="md-4">{{ blog.content|safe }}</p>
+                <div class="like mb-3" onclick="likeChange(this, '{% get_content_type blog %}', {{ blog.pk }})">
+                    <i class="far fa-thumbs-up {% get_liked_status blog %}"></i>
+                    <span class="like-count">{% get_like_count blog %}</span>
+                    <span>&nbsp;like</span>
+                </div>
                 <div class="blog-more">
                     {% if previous_blog %}
                         <h6>Previous Blog: <a href="{% url 'blog_detail' previous_blog.pk %}">{{ previous_blog.title }}</a></h6>
@@ -72,6 +78,10 @@
                             <div id="comment_{{ comment.pk }}">
                                 {{ comment.text|safe }}
                             </div>
+                            <div class="like mr-2" onclick="likeChange(this, '{% get_content_type comment %}', {{ comment.pk }})">
+                                <i class="far fa-thumbs-up {% get_liked_status comment %}"></i>
+                                <span class="like-count">{% get_like_count comment %}</span>
+                            </div>
                             <a href="javascript:reply({{ comment.pk }});" class="small">Reply</a>
 
                             {% for reply in comment.root_comment.all %}
@@ -82,6 +92,10 @@
                                 <span>{{ reply.reply_to.username }}:</span>
                                 <div id="comment_{{ reply.pk }}">
                                     {{ reply.text|safe }}
+                                </div>
+                                <div class="like mr-2" onclick="likeChange(this, '{% get_content_type reply %}', {{ reply.pk }})">
+                                    <i class="far fa-thumbs-up {% get_liked_status reply %}"></i>
+                                    <span class="like-count">{% get_like_count reply %}</span>
                                 </div>
                                 <a href="javascript:reply({{ reply.pk }});" class="small">Reply</a>
                             </div>
@@ -152,21 +166,11 @@
                     if(data['status']==="SUCCESS"){
                         if($("#reply_comment_id").val()==='0'){
                             //add comment
-                            var comment_html = '<li id="root_' + data['pk'] + '" class="list-group-item">' +
-                            '<span>' + data['username'] + '</span>' +
-                            '<span>(' + timeFormat(data['comment_time']) + '):</span>' +
-                            '<div id="comment_' + data['pk'] + '">' + data['text'] + '</div>' +
-                            '<a href="javascript:reply(' + data['pk'] + ');" class="small">Reply</a></li>';
+                            var comment_html = `<li id="root_${data['pk']}" class="list-group-item"><span>${data['username']}</span>&nbsp;<span>(${timeFormat(data['comment_time'])}):</span>&nbsp;<div id="comment_${data['pk']}">${data['text']}</div>&nbsp;<a href="javascript:reply(${data['pk']});" class="small">Reply</a></li>`;
                             $("#comment_list").prepend(comment_html);
                         }else{
                             //add reply
-                            var reply_html = '<div class="ml-4">'+
-                                '<span>' + data['username'] + '</span>'+
-                                '<span>(' + timeFormat(data['comment_time']) + ')</span>'+
-                                '<span>reply</span>'+
-                                '<span>' + data['reply_to'] + ':</span>'+
-                                '<div id="comment_' + data['pk'] + '">'+ data['text'] + '</div>'+
-                                '<a href="javascript:reply(' + data['pk'] + ');" class="small">Reply</a></div>';
+                            var reply_html = `<div class="ml-4"><span>${data['username']}</span><span>(${timeFormat(data['comment_time'])})</span><span>reply</span><span>${data['reply_to']}:</span><div id="comment_${data['pk']}">${data['text']}</div><a href="javascript:reply(${data['pk']});" class="small">Reply</a></div>`;
                             $("#root_" + data['root_pk']).append(reply_html);
                         }
                         CKEDITOR.instances['id_text'].setData('');
@@ -174,6 +178,8 @@
                         $("#reply_comment_id").val('0');
                         $("#no_comment").remove();
                         $("#comment_success").text('Comment submitted');
+                        var comment_num = parseInt($('.fa-comments').text())+1
+                        $('.fa-comments').text(comment_num)
                     }else{
                         $("#comment_error").text(data['message']);
                     }
@@ -184,6 +190,39 @@
             });
             return false;
         });
+        
+        function likeChange(obj, content_type, object_id) {
+            var is_liked = obj.getElementsByClassName('active').length === 0;
+            $.ajax({
+                url: '{% url 'update_like' %}',
+                type: 'GET',
+                data: {
+                    content_type: content_type,
+                    object_id: object_id,
+                    is_liked: is_liked,
+                },
+                cache: false,
+                success: function (data) {
+                    console.log(data);
+                    if (data['status']==='SUCCESS'){
+                        var element = $(obj.getElementsByTagName('i'));
+                        if (is_liked) {
+                            element.addClass('active');
+                        }else{
+                            element.removeClass('active');
+                        }
+                        var liked_num = $(obj.getElementsByClassName('like-count'));
+                        liked_num.text(data['liked_num']);
+                    }else{
+                        alert(data['message']);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                },
+            });
+        }
+        
     </script>
 
 {% endblock %}

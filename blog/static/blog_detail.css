@@ -1,3 +1,13 @@
 div.django-ckeditor-widget {
     width: 100%;
 }
+div.like{
+    cursor: pointer;
+    display: inline-block;
+}
+div.like span{
+    color: #007bff;
+}
+div.like .active{
+    color: #007bff;
+}
