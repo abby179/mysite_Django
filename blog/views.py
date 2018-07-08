@@ -4,6 +4,7 @@ from django.shortcuts import render, get_object_or_404
 
 from .models import Blog, BlogType
 from read_count.utils import read_count_once
+from mysite.forms import LoginForm
 
 
 def get_common_blog_data(request, blog_all):
@@ -55,6 +56,7 @@ def blog_detail(request, blog_pk):
     context['blog'] = blog
     context['previous_blog'] = Blog.objects.filter(create_time__gt=blog.create_time).last()
     context['next_blog'] = Blog.objects.filter(create_time__lt=blog.create_time).first()
+    context['login_form'] = LoginForm()
     response = render(request, 'blog/blog_detail.html', context)
     response.set_cookie(read_cookie_key, 'true', max_age=120)
     return response

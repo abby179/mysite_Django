@@ -11,3 +11,7 @@ div.like span{
 div.like .active{
     color: #007bff;
 }
+div#reply_content_container{
+    border-color: #d1d1d1;
+    background-color: #f8f8f8;
+}

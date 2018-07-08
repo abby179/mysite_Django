@@ -7,6 +7,7 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.urls import reverse
+from django.http import JsonResponse
 
 from read_count.utils import get_seven_days_read_data, get_hot_today, get_hot_yesterday
 from blog.models import Blog
@@ -53,6 +54,16 @@ def login(request):
     context = {}
     context['login_form'] = login_form
     return render(request, 'login.html', context)
+
+
+def login_for_modal(request):
+    login_form = LoginForm(request.POST)
+    if login_form.is_valid():
+        user = login_form.cleaned_data['user']
+        auth.login(request, user)
+        return JsonResponse({'status': 'SUCCESS'})
+    else:
+        return JsonResponse({'status': 'ERROR'})
 
 
 def register(request):

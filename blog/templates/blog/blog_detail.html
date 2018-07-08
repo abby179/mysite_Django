@@ -48,7 +48,7 @@
                         <form id="comment_form" action="{% url 'update_comment' %}" method="post">
                             {% csrf_token %}
                             <label for="comment_text">{{ user }}, please leave your comment:</label>
-                            <div id="reply_content_container" style="display: none">
+                            <div id="reply_content_container" class="border border-bottom-0 pl-2" style="display: none">
                                 <span>Reply: </span>
                                 <span id="reply_content"></span>
                             </div>
@@ -111,6 +111,40 @@
                 </div>
             </div>
         </div>
+        <!-- Modal -->
+        <div class="modal fade" id="login_modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <form id="login_modal_form" action="" method="post">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Login</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+
+                  <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {% for field in login_form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div id="login_modal_tip" class="text-danger small"></div>
+                  </div>
+
+                  <div class="modal-footer">
+                    <a class="btn btn-danger pull-left" href="{% url 'register' %}?from={{ request.get_full_path }}">Register</a>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+                </form>
+            </div>
+          </div>
+        </div>
     </div>
 {% endblock %}
 
@@ -162,15 +196,33 @@
                 data: $(this).serialize(),
                 cache: false,
                 success: [function (data) {
-                    console.log(data);
                     if(data['status']==="SUCCESS"){
                         if($("#reply_comment_id").val()==='0'){
                             //add comment
-                            var comment_html = `<li id="root_${data['pk']}" class="list-group-item"><span>${data['username']}</span>&nbsp;<span>(${timeFormat(data['comment_time'])}):</span>&nbsp;<div id="comment_${data['pk']}">${data['text']}</div>&nbsp;<a href="javascript:reply(${data['pk']});" class="small">Reply</a></li>`;
+                            var comment_html = `<li id="root_${data['pk']}" class="list-group-item">
+                                                    <span>${data['username']}&nbsp;</span>
+                                                    <span>(${timeFormat(data['comment_time'])}):&nbsp;</span>
+                                                    <div id="comment_${data['pk']}">${data['text']}&nbsp;</div>
+                                                    <div class="like mr-2" onclick="likeChange(this, \'${data['content_type']}\', ${data['pk']})">
+                                                        <i class="far fa-thumbs-up"></i>
+                                                        <span class="like-count">0</span>
+                                                    </div>
+                                                    <a href="javascript:reply(${data['pk']});" class="small">Reply</a>
+                                                </li>`;
                             $("#comment_list").prepend(comment_html);
                         }else{
                             //add reply
-                            var reply_html = `<div class="ml-4"><span>${data['username']}</span><span>(${timeFormat(data['comment_time'])})</span><span>reply</span><span>${data['reply_to']}:</span><div id="comment_${data['pk']}">${data['text']}</div><a href="javascript:reply(${data['pk']});" class="small">Reply</a></div>`;
+                            var reply_html = `<div class="ml-4">
+                                                  <span>${data['username']}</span>
+                                                  <span>(${timeFormat(data['comment_time'])})</span>
+                                                  <span>reply</span><span>${data['reply_to']}:</span>
+                                                  <div id="comment_${data['pk']}">${data['text']}</div>
+                                                  <div class="like mr-2" onclick="likeChange(this, \'${data['content_type']}\', ${data['pk']})">
+                                                        <i class="far fa-thumbs-up"></i>
+                                                        <span class="like-count">0</span>
+                                                  </div>
+                                                  <a href="javascript:reply(${data['pk']});" class="small">Reply&nbsp;</a>
+                                              </div>`;
                             $("#root_" + data['root_pk']).append(reply_html);
                         }
                         CKEDITOR.instances['id_text'].setData('');
@@ -203,7 +255,6 @@
                 },
                 cache: false,
                 success: function (data) {
-                    console.log(data);
                     if (data['status']==='SUCCESS'){
                         var element = $(obj.getElementsByTagName('i'));
                         if (is_liked) {
@@ -214,7 +265,11 @@
                         var liked_num = $(obj.getElementsByClassName('like-count'));
                         liked_num.text(data['liked_num']);
                     }else{
-                        alert(data['message']);
+                        if (data['code']===400) {
+                            $('#login_modal').modal('show');
+                        }else{
+                            alert(data['message']);
+                        }
                     }
                 },
                 error: function (xhr) {
@@ -222,6 +277,26 @@
                 },
             });
         }
+        
+        $("#login_modal_form").submit(function () {
+            $.ajax({
+                url: "{% url 'login_for_modal' %}",
+                type: 'post',
+                data: $(this).serialize(),
+                cache: false,
+                success: function (data) {
+                    if (data['status']==='SUCCESS') {
+                        window.location.reload();
+                    }else{
+                        $("#login_modal_tip").text('Username or password is not correct');
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+            return false;
+        });
         
     </script>
 

@@ -1,6 +1,5 @@
-from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
+from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
 
 from .models import Comment
@@ -9,7 +8,6 @@ from .forms import CommentForm
 
 @login_required
 def update_comment(request):
-    # referer = request.META.get('HTTP_REFERER', reverse('index'))
     comment_form = CommentForm(request.POST)
     data = {}
 
@@ -29,6 +27,7 @@ def update_comment(request):
         data['status'] = 'SUCCESS'
         data['username'] = comment.user.username
         data['comment_time'] = comment.comment_time.timestamp()
+        data['content_type'] = ContentType.objects.get_for_model(comment).model
         data['text'] = comment.text
         if parent:
             data['reply_to'] = comment.reply_to.username

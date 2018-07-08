@@ -1,7 +1,5 @@
-from django.shortcuts import render
 from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
 from django.db.models import ObjectDoesNotExist
 
 from .models import LikeCount, LikeRecord
@@ -17,9 +15,11 @@ def error_response(code, message):
     return JsonResponse(data)
 
 
-@login_required
 def update_like(request):
     user = request.user
+    if not user.is_authenticated:
+        return error_response(400, 'You are not login')
+
     content_type = request.GET.get('content_type')
     object_id = int(request.GET.get('object_id'))
 
