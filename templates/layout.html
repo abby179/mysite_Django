@@ -21,17 +21,94 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item {% block nav_home_active %}{% endblock %}">
-            <a class="nav-link" href="{% url 'index' %}">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{% url 'index' %}">Home</a>
           </li>
           <li class="nav-item {% block nav_blog_active %}{% endblock %}">
             <a class="nav-link" href="{% url 'blog_list' %}">Blog</a>
           </li>
+        </ul>
+      
+        <ul class="navbar-nav justify-content-end">
+          {% if user.is_authenticated %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
+                  {{ user.username }}
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="{% url 'user_info' %}">My Page</a>
+                  <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                </div>
+              </li>
+          {% else %}
+              <li class="nav-item {% block nav_login_active %}{% endblock %}">
+                <a class="nav-link" href="{% url 'login' %}?from={{ request.get_full_path }}">Login</a>
+              </li>
+              <li class="nav-item {% block nav_register_active %}{% endblock %}">
+                <a class="nav-link" href="{% url 'register' %}?from={{ request.get_full_path }}">Register</a>
+              </li>
+          {% endif %}
         </ul>
       </div>
     </nav>
 
     {% block content %}
     {% endblock %}
+
+    <!-- Modal -->
+    <div class="modal fade" id="login_modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <form id="login_modal_form" action="" method="post">
+              <div class="modal-header">
+                <h5 class="modal-title">Login</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+
+              <div class="modal-body">
+                {% csrf_token %}
+                <div class="form-group">
+                    {% for field in login_modal_form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div id="login_modal_tip" class="text-danger small"></div>
+              </div>
+
+              <div class="modal-footer">
+                <a class="btn btn-danger pull-left" href="{% url 'register' %}?from={{ request.get_full_path }}">Register</a>
+                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+        $("#login_modal_form").submit(function () {
+            $.ajax({
+                url: "{% url 'login_for_modal' %}",
+                type: 'post',
+                data: $(this).serialize(),
+                cache: false,
+                success: function (data) {
+                    if (data['status']==='SUCCESS') {
+                        window.location.reload();
+                    }else{
+                        $("#login_modal_tip").text('Username or password is not correct');
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+            return false;
+        });
+    </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>

@@ -45,5 +45,3 @@ class RegForm(forms.Form):
         if password != password_again:
             raise forms.ValidationError('Two passwords are not the same')
         return password_again
-
-

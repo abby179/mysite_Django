@@ -23,8 +23,7 @@ urlpatterns = [
     path('blog/', include('blog.urls')),
     path('comment/', include('comment.urls')),
     path('likes/', include('likes.urls')),
+    path('user/', include('user.urls')),
     path('', views.index, name='index'),
-    path('login/', views.login, name='login'),
-    path('login_for_modal/', views.login_for_modal, name='login_for_modal'),
-    path('register/', views.register, name='register'),
+
 ]

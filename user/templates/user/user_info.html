@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    MySite|My Page
+{% endblock %}
+
+{% block content %}
+    <div class="content">
+        <div class="row">
+            <div class="col-10 offset-1">
+                <h2>{{ user.username }}</h2>
+                <ul class="list-unstyled">
+                    <li>Email: {% if user.email %}
+                        {{ user.email }}
+                    {% else %}
+                        No email <a href="#">Link email</a>
+                    {% endif %}</li>
+                    <li>Last login: {{ user.last_login|date:"Y-m-d H:i" }}</li>
+                    <li><a href="#">Change password</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -111,40 +111,6 @@
                 </div>
             </div>
         </div>
-        <!-- Modal -->
-        <div class="modal fade" id="login_modal" tabindex="-1" role="dialog">
-          <div class="modal-dialog modal-sm" role="document">
-            <div class="modal-content">
-                <form id="login_modal_form" action="" method="post">
-                  <div class="modal-header">
-                    <h5 class="modal-title">Login</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-
-                  <div class="modal-body">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        {% for field in login_form %}
-                            <div class="form-group">
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <div id="login_modal_tip" class="text-danger small"></div>
-                  </div>
-
-                  <div class="modal-footer">
-                    <a class="btn btn-danger pull-left" href="{% url 'register' %}?from={{ request.get_full_path }}">Register</a>
-                    <button type="submit" class="btn btn-primary">Login</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  </div>
-                </form>
-            </div>
-          </div>
-        </div>
     </div>
 {% endblock %}
 
@@ -277,26 +243,6 @@
                 },
             });
         }
-        
-        $("#login_modal_form").submit(function () {
-            $.ajax({
-                url: "{% url 'login_for_modal' %}",
-                type: 'post',
-                data: $(this).serialize(),
-                cache: false,
-                success: function (data) {
-                    if (data['status']==='SUCCESS') {
-                        window.location.reload();
-                    }else{
-                        $("#login_modal_tip").text('Username or password is not correct');
-                    }
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
-            return false;
-        });
         
     </script>
 

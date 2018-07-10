@@ -1,17 +1,12 @@
 import datetime
 from django.contrib.contenttypes.models import ContentType
-from django.contrib import auth
-from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db.models import Sum
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.utils import timezone
-from django.urls import reverse
-from django.http import JsonResponse
 
 from read_count.utils import get_seven_days_read_data, get_hot_today, get_hot_yesterday
 from blog.models import Blog
-from .forms import LoginForm, RegForm
 
 
 def get_hot_blog_7_days():
@@ -39,50 +34,3 @@ def index(request):
     context['hot_yesterday'] = get_hot_yesterday(blog_content_type)
     context['hot_7_days'] = hot_7_days
     return render(request, 'index.html', context)
-
-
-def login(request):
-    if request.method == 'POST':
-        login_form = LoginForm(request.POST)
-        if login_form.is_valid():
-            user = login_form.cleaned_data['user']
-            auth.login(request, user)
-            return redirect(request.GET.get('from', reverse('index')))
-    else:
-        login_form = LoginForm()
-
-    context = {}
-    context['login_form'] = login_form
-    return render(request, 'login.html', context)
-
-
-def login_for_modal(request):
-    login_form = LoginForm(request.POST)
-    if login_form.is_valid():
-        user = login_form.cleaned_data['user']
-        auth.login(request, user)
-        return JsonResponse({'status': 'SUCCESS'})
-    else:
-        return JsonResponse({'status': 'ERROR'})
-
-
-def register(request):
-    if request.method == 'POST':
-        reg_form = RegForm(request.POST)
-        if reg_form.is_valid():
-            username = reg_form.cleaned_data['username']
-            email = reg_form.cleaned_data['email']
-            password = reg_form.cleaned_data['password']
-            user = User.objects.create_user(username, email, password)
-            user.save()
-
-            user = auth.authenticate(username=username, password=password)
-            auth.login(request, user)
-            return redirect(request.GET.get('from', reverse('index')))
-
-    else:
-        reg_form = RegForm()
-
-    context = {}
-    context['reg_form'] = reg_form
-    return render(request, 'register.html', context)
