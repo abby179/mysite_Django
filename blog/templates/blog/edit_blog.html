@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}Mysite|Edit Blog{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'write_blog.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container mb-4 mt-4">
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    {% for field in blog_form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                        </div>
+                    {% endfor %}
+                    <div class="text-danger">{{ blog_form.non_field_errors.0 }}</div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extend %}
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+{% block title %}Mysite|My Blog{% endblock %}
+
+{% block content %}
+    <div class="container mb-4 mt-4">
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th scope="col">Title</th>
+                      <th scope="col">Date</th>
+                      <th scope="col"></th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for blog in blog_all %}
+                      <tr>
+                        <td><a href="{% url 'blog_detail' blog.pk %}">{{ blog.title }}</a></td>
+                        <td>{{ blog.create_time|date:"Y-m-d H:i" }}</td>
+                        <td><a href="{% url 'edit_blog' blog.pk %}" class="btn btn-outline-primary float-right">Edit</a></td>
+                        <td>
+                            <a href="{% url 'delete_blog' blog.pk %}" class="btn btn-danger">Delete</a>
+                        </td>
+                      </tr>
+                  {% endfor %}
+                  </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
